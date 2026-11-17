@@ -134,8 +134,8 @@ html.fsmode #fs{display:none}
   <div id="start"><span>▶ KLICKEN ZUM STARTEN</span></div>
 </div>
 
-<audio id="mA" src="music.mp3" preload="auto"></audio>
-<audio id="mB" src="music.mp3" preload="auto"></audio>
+<audio id="mA" src="music-v2.mp3" preload="auto"></audio>
+<audio id="mB" src="music-v2.mp3" preload="auto"></audio>
 <script src="slides.js"></script>
 <script>
 (function(){
@@ -187,7 +187,7 @@ html.fsmode #fs{display:none}
   if (dbg) dbg.style.display = "block";
   A.forEach(function(a){ a.volume = VOLUME; });
   // Songliste des Mix: ab dieser Sekunde (Mitte der Überblendung) gilt der Titel
-  var PLAN = [{"start":0.0,"title":"GTA VI – Main Theme"},{"start":41.5,"title":"Aluna & Jayda G – Mine O Mine"},{"start":189.4,"title":"Justice – Flower In A Hurricane"},{"start":355.7,"title":"The Pointer Sisters – Hot Together"},{"start":536.3,"title":"GTA VI – Main Menu Music"},{"start":644.3,"title":"Depeche Mode – People Are People"},{"start":829.3,"title":"Tom Petty – Love Is A Long Road"},{"start":1010.7,"title":"Tove Lo – Blood In Your Eyes"}];
+  var PLAN = [{"start":0.0,"title":"GTA VI – Main Theme"},{"start":41.5,"title":"Aluna & Jayda G – Mine O Mine"},{"start":208.2,"title":"Justice – Flower In A Hurricane"},{"start":412.5,"title":"The Pointer Sisters – Hot Together"},{"start":633.8,"title":"GTA VI – Main Menu Music"},{"start":856.8,"title":"Depeche Mode – People Are People"},{"start":1045.8,"title":"Tom Petty – Love Is A Long Road"},{"start":1272.6,"title":"Tove Lo – Blood In Your Eyes"}];
   var npEl = document.getElementById("np"), lastTitle = "";
   setInterval(function(){
     var t = A[mi].currentTime, title = PLAN[0].title;
@@ -195,7 +195,7 @@ html.fsmode #fs{display:none}
     if (title !== lastTitle){ lastTitle = title; npEl.textContent = "♪ " + title; }
   }, 500);
   function log(t){ if (dbg) dbg.textContent = t; }
-  function reset(a){ try { a.pause(); a.src = "music.mp3"; a.load(); } catch(e){} }
+  function reset(a){ try { a.pause(); a.src = "music-v2.mp3"; a.load(); } catch(e){} }
   function play(a){
     var p = a.play();
     if (p && p.catch) p.catch(function(err){
