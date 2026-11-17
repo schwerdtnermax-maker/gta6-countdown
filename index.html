@@ -87,6 +87,11 @@ html,body{width:100%;height:100%;background:#000;overflow:hidden}
 html.site #live{display:none}
 #fan{display:none;position:absolute;left:0;right:0;top:20px;text-align:center;font:700 24px/1 var(--ui);letter-spacing:2px;color:rgba(255,255,255,.75)}
 html.site #fan{display:block}
+#ui{position:absolute;left:50%;top:50%;width:1920px;height:1080px;margin:-540px 0 0 -960px}
+#fs{display:none;position:absolute;right:28px;top:22px;z-index:70;cursor:pointer;font:800 26px/1 var(--ui);letter-spacing:2px;color:#fff;background:rgba(0,0,0,.55);border:3px solid rgba(255,255,255,.8);border-radius:12px;padding:12px 20px}
+#fs:hover{background:rgba(0,0,0,.8)}
+html.site #fs{display:block}
+html.fsmode #fs{display:none}
 </style>
 </head>
 <body>
@@ -97,6 +102,7 @@ html.site #fan{display:block}
   </div>
   <div class="shade"></div>
 
+  <div id="ui">
   <div id="live"><i></i>LIVE</div>
   <div id="fan" class="ol-s">INOFFIZIELLER FAN-COUNTDOWN</div>
   <div id="title" class="ol"><span class="grad">GTA 6 RELEASE COUNTDOWN</span></div>
@@ -121,6 +127,8 @@ html.site #fan{display:block}
 
   <div id="dbg"></div>
   <div id="dbg2"></div>
+  </div>
+  <button id="fs" type="button">⛶ VOLLBILD</button>
   <div id="flash"></div>
   <div id="start"><span>▶ KLICKEN ZUM STARTEN</span></div>
 </div>
@@ -151,9 +159,25 @@ html.site #fan{display:block}
   var stage = document.getElementById("stage");
   function fit(){
     var k = Math.min(innerWidth/1920, innerHeight/1080);
-    stage.style.transform = "translate(" + (innerWidth-1920*k)/2 + "px," + (innerHeight-1080*k)/2 + "px) scale(" + k + ")";
+    stage.style.width = (innerWidth / k) + "px";
+    stage.style.height = (innerHeight / k) + "px";
+    stage.style.transform = "scale(" + k + ")";
   }
   addEventListener("resize", fit); fit();
+  function isFs(){ return document.fullscreenElement || document.webkitFullscreenElement; }
+  function toggleFs(){
+    var el = document.documentElement;
+    if (isFs()){ (document.exitFullscreen || document.webkitExitFullscreen).call(document); }
+    else { var f = el.requestFullscreen || el.webkitRequestFullscreen; if (f) f.call(el); }
+  }
+  function fsState(){ document.documentElement.classList.toggle("fsmode", !!isFs()); }
+  document.addEventListener("fullscreenchange", fsState); document.addEventListener("webkitfullscreenchange", fsState);
+  var fsBtn = document.getElementById("fs");
+  fsBtn.addEventListener("click", function(e){ e.stopPropagation(); toggleFs(); });
+  if (IS_SITE){
+    document.addEventListener("dblclick", toggleFs);
+    document.addEventListener("keydown", function(e){ if (e.key === "f" || e.key === "F") toggleFs(); });
+  }
 
   // ===== Musik: zwei feste Player in der Seite im Wechsel, kein Loop =====
   var startEl = document.getElementById("start");
