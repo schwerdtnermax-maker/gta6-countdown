@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GTA 6 Release Countdown – Livestream</title>
+<style>
+/* GTA-Schrift: nimmt Pricedown, wenn sie auf dem PC installiert ist, sonst Titan One (liegt bei) */
+@font-face{
+  font-family:"GTA";
+  src: local("Pricedown Bl"), local("PricedownBl-Regular"), local("Pricedown Black"),
+       local("Pricedown-Black"), local("Pricedown"),
+       url("fonts/titan-one.woff2") format("woff2");
+}
+:root{
+  --pink:#ff4fa3; --orange:#ffb340; --violet:#7a3cff;
+  --ui:"Segoe UI","Inter",Arial,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;background:#000;overflow:hidden}
+#stage{position:absolute;left:0;top:0;width:1920px;height:1080px;transform-origin:0 0;overflow:hidden;background:#000;font-family:"GTA",var(--ui)}
+
+/* Diashow */
+#bg{position:absolute;inset:0;z-index:0;isolation:isolate;overflow:hidden}
+.slide{position:absolute;inset:0;background-size:cover;background-position:center;opacity:0;will-change:transform,opacity}
+.shade{position:absolute;inset:0;pointer-events:none;
+  background:
+    linear-gradient(180deg,rgba(0,0,0,.70) 0%,rgba(0,0,0,0) 26%),
+    linear-gradient(0deg,rgba(0,0,0,.80) 0%,rgba(0,0,0,0) 34%),
+    radial-gradient(ellipse 70% 42% at 50% 52%,rgba(0,0,0,.42) 0%,rgba(0,0,0,0) 100%);}
+
+/* Outline wie im GTA-Stil (funktioniert auch in OBS) */
+.ol{filter:
+  drop-shadow(4px 0 0 #000) drop-shadow(-4px 0 0 #000)
+  drop-shadow(0 4px 0 #000) drop-shadow(0 -4px 0 #000)
+  drop-shadow(7px 8px 0 rgba(0,0,0,.55));}
+.ol-s{filter:
+  drop-shadow(2px 0 0 #000) drop-shadow(-2px 0 0 #000)
+  drop-shadow(0 2px 0 #000) drop-shadow(0 -2px 0 #000)
+  drop-shadow(4px 4px 0 rgba(0,0,0,.5));}
+.grad{background:linear-gradient(180deg,var(--orange) 0%,var(--pink) 62%,var(--violet) 100%);
+  -webkit-background-clip:text;background-clip:text;color:transparent}
+
+/* Kopfzeile */
+#live{position:absolute;left:56px;top:40px;z-index:5;display:flex;align-items:center;gap:14px;
+  background:#e0102a;color:#fff;font:800 34px/1 var(--ui);letter-spacing:2px;padding:12px 22px 12px 18px;border-radius:10px;
+  box-shadow:0 6px 0 rgba(0,0,0,.45)}
+#live i{width:18px;height:18px;border-radius:50%;background:#fff;animation:blink 1.2s infinite}
+@keyframes blink{50%{opacity:.15}}
+#title{position:absolute;left:0;right:0;top:112px;text-align:center;font-size:104px;line-height:1;letter-spacing:2px;white-space:nowrap}
+
+/* Countdown */
+#cd{position:absolute;left:0;right:0;top:318px;display:flex;justify-content:center;align-items:flex-start;gap:6px;transition:opacity .6s}
+.grp{width:350px;text-align:center}
+.num{font-size:232px;line-height:1;color:#fff;font-variant-numeric:tabular-nums}
+.lab{margin-top:18px;font-size:46px;line-height:1;letter-spacing:3px}
+.sep{font-size:190px;line-height:1.08;color:#fff;width:64px;text-align:center}
+#date{position:absolute;left:0;right:0;top:712px;text-align:center;font-size:58px;color:#fff;letter-spacing:1px;transition:opacity .6s}
+
+/* Fußzeile */
+#cap{position:absolute;left:58px;bottom:52px;transition:opacity .7s}
+#cap .k{font:800 26px/1 var(--ui);letter-spacing:4px;color:var(--orange);margin-bottom:10px}
+#cap .v{font-size:64px;line-height:1;color:#fff}
+#now{position:absolute;right:58px;bottom:56px;text-align:right;color:#fff}
+#now .k{font:800 24px/1 var(--ui);letter-spacing:3px;color:var(--orange);margin-bottom:10px}
+#now .v{font:800 40px/1 var(--ui);font-variant-numeric:tabular-nums}
+#np{position:absolute;right:58px;bottom:142px;font:700 24px/1 var(--ui);color:rgba(255,255,255,.85);letter-spacing:1px}
+
+/* Letzte 10 Sekunden + Ende */
+#big{position:absolute;left:0;right:0;top:250px;text-align:center;font-size:580px;line-height:1;color:#fff;opacity:0;pointer-events:none}
+#big.pop{animation:pop 1s ease-out}
+@keyframes pop{0%{transform:scale(1.35);opacity:0}15%{opacity:1}100%{transform:scale(1);opacity:1}}
+#done{position:absolute;left:0;right:0;top:340px;text-align:center;opacity:0;pointer-events:none}
+#done .a{font-size:200px;line-height:1;white-space:nowrap}
+#done .b{font-size:96px;line-height:1.1;color:#fff;margin-top:40px}
+#done.on{opacity:1;animation:pulse 1.4s ease-in-out infinite}
+@keyframes pulse{50%{transform:scale(1.04)}}
+#flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none}
+#flash.go{animation:flash 1.6s ease-out}
+@keyframes flash{0%{opacity:.95}100%{opacity:0}}
+
+/* Nur im normalen Browser nötig, falls Autoplay blockiert ist (in OBS nicht) */
+#start{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.55);cursor:pointer;z-index:50}
+#start span{font-size:90px;color:#fff;padding:30px 60px;border:6px solid #fff;border-radius:24px}
+#dbg{display:none;position:absolute;left:20px;top:150px;z-index:60;font:700 22px/1.2 monospace;color:#0f0;background:rgba(0,0,0,.7);padding:6px 10px}
+#dbg2{display:none;position:absolute;left:20px;top:200px;z-index:60;font:700 22px/1.2 monospace;color:#0f0;background:rgba(0,0,0,.7);padding:6px 10px}
+html.site #live{display:none}
+#fan{display:none;position:absolute;left:0;right:0;top:20px;text-align:center;font:700 24px/1 var(--ui);letter-spacing:2px;color:rgba(255,255,255,.75)}
+html.site #fan{display:block}
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="bg">
+    <div class="slide" id="s0"></div>
+    <div class="slide" id="s1"></div>
+  </div>
+  <div class="shade"></div>
+
+  <div id="live"><i></i>LIVE</div>
+  <div id="fan" class="ol-s">INOFFIZIELLER FAN-COUNTDOWN</div>
+  <div id="title" class="ol"><span class="grad">GTA 6 RELEASE COUNTDOWN</span></div>
+
+  <div id="cd" class="ol">
+    <div class="grp"><div class="num" id="d">00</div><div class="lab grad">TAGE</div></div>
+    <div class="sep">:</div>
+    <div class="grp"><div class="num" id="h">00</div><div class="lab grad">STUNDEN</div></div>
+    <div class="sep">:</div>
+    <div class="grp"><div class="num" id="m">00</div><div class="lab grad">MINUTEN</div></div>
+    <div class="sep">:</div>
+    <div class="grp"><div class="num" id="s">00</div><div class="lab grad">SEKUNDEN</div></div>
+  </div>
+  <div id="date" class="ol-s">19. NOVEMBER 2026 · 00:00 UHR · DEUTSCHE ZEIT</div>
+
+  <div id="big" class="ol"></div>
+  <div id="done" class="ol"><div class="a grad">ES IST SOWEIT!</div><div class="b">GTA VI IST DA</div></div>
+
+  <div id="cap" class="ol-s"><div class="k" id="capk">ORT</div><div class="v" id="capv">VICE CITY</div></div>
+  <div id="np" class="ol-s">♪ GTA VI – Main Menu Music</div>
+  <div id="now" class="ol-s"><div class="k">JETZT IN DEUTSCHLAND</div><div class="v" id="nowv">--</div></div>
+
+  <div id="dbg"></div>
+  <div id="dbg2"></div>
+  <div id="flash"></div>
+  <div id="start"><span>▶ KLICKEN ZUM STARTEN</span></div>
+</div>
+
+<audio id="mA" src="music.mp3" preload="auto"></audio>
+<audio id="mB" src="music.mp3" preload="auto"></audio>
+<script src="slides.js"></script>
+<script>
+(function(){
+  // ===== Einstellungen =====
+  // Ziel: Donnerstag, 19.11.2026, 00:00 Uhr deutsche Zeit (MEZ = UTC+1) = 18.11.2026 23:00 UTC
+  var TARGET = Date.UTC(2026, 10, 18, 23, 0, 0);
+  var SHOW = 8000;   // ms pro Bild
+  var FADE = 1600;   // ms Überblendung
+  var VOLUME = 0.8;
+
+  var q = new URLSearchParams(location.search);
+  // Vorlauf: so viele Sekunden früher zeigt die Seite die Zeit, damit Zuschauer trotz Stream-Verzögerung die Null pünktlich sehen
+  var IS_SITE = location.protocol !== "file:";   // Website (http/https) oder OBS mit lokaler Datei (file:)
+  if (IS_SITE) document.documentElement.className += " site";
+  var LEAD = (q.has("lead") ? parseFloat(q.get("lead")) : (IS_SITE ? 0 : 3.25)) * 1000;
+  var OFFSET = 0, syncInfo = "Uhr: PC-Zeit (noch nicht synchronisiert)";
+  function nowMs(){ return Date.now() + OFFSET + LEAD; }
+  if (q.has("test")) TARGET = Date.now() + LEAD + (parseInt(q.get("test"),10) || 15) * 1000; // z.B. index.html?test=15
+  var MUTE = q.has("mute");
+
+  // ===== Bühne auf Fenstergröße skalieren (1920×1080 in OBS = 1:1) =====
+  var stage = document.getElementById("stage");
+  function fit(){
+    var k = Math.min(innerWidth/1920, innerHeight/1080);
+    stage.style.transform = "translate(" + (innerWidth-1920*k)/2 + "px," + (innerHeight-1080*k)/2 + "px) scale(" + k + ")";
+  }
+  addEventListener("resize", fit); fit();
+
+  // ===== Musik: zwei feste Player in der Seite im Wechsel, kein Loop =====
+  var startEl = document.getElementById("start");
+  var A = [document.getElementById("mA"), document.getElementById("mB")], mi = 0, swapping = false;
+  var dbg = q.has("debug") ? document.getElementById("dbg") : null;
+  if (dbg) dbg.style.display = "block";
+  A.forEach(function(a){ a.volume = VOLUME; });
+  // Songliste des Mix: ab dieser Sekunde (Mitte der Überblendung) gilt der Titel
+  var PLAN = [{"start": 0, "title": "GTA VI – Main Theme"}, {"start": 85.7, "title": "Aluna & Jayda G – Mine O Mine"}, {"start": 262.2, "title": "Justice – Flower In A Hurricane"}, {"start": 416.7, "title": "Depeche Mode – People Are People"}, {"start": 575.7, "title": "Tove Lo – Blood In Your Eyes"}, {"start": 731.9, "title": "GTA VI – Main Menu Music"}];
+  var npEl = document.getElementById("np"), lastTitle = "";
+  setInterval(function(){
+    var t = A[mi].currentTime, title = PLAN[0].title;
+    for (var i = 0; i < PLAN.length; i++) if (t >= PLAN[i].start) title = PLAN[i].title;
+    if (title !== lastTitle){ lastTitle = title; npEl.textContent = "♪ " + title; }
+  }, 500);
+  function log(t){ if (dbg) dbg.textContent = t; }
+  function reset(a){ try { a.pause(); a.src = "music.mp3"; a.load(); } catch(e){} }
+  function play(a){
+    var p = a.play();
+    if (p && p.catch) p.catch(function(err){
+      log("play-Fehler: " + (err && err.name));
+      if (err && err.name === "NotAllowedError") startEl.style.display = "flex";
+      else setTimeout(function(){ if (a.paused && startEl.style.display !== "flex") play(a); }, 3000);
+    });
+  }
+  function swap(){
+    if (swapping) return; swapping = true;
+    var old = A[mi]; mi = 1 - mi;
+    A[mi].currentTime = 0; play(A[mi]);
+    setTimeout(function(){ reset(old); swapping = false; }, 4000);
+  }
+  A.forEach(function(a, k){
+    a.addEventListener("timeupdate", function(){
+      if (k === mi && a.duration > 10 && a.duration - a.currentTime < 2) swap();
+    });
+    a.addEventListener("ended", function(){ if (k === mi) swap(); });
+    a.addEventListener("error", function(){ log("Audio-Fehler " + (a.error && a.error.code)); });
+  });
+  if (!MUTE){
+    startEl.addEventListener("click", function(){ startEl.style.display = "none"; play(A[mi]); });
+    play(A[mi]);
+    // Wächter: nur neu starten, nie springen
+    var lastT = -1, same = 0;
+    setInterval(function(){
+      var a = A[mi];
+      log("Player " + mi + " " + a.currentTime.toFixed(1) + "/" + (a.duration || 0).toFixed(0) + (a.paused ? " PAUSE" : " läuft"));
+      if (startEl.style.display === "flex" || swapping) return;
+      if (a.ended){ swap(); return; }
+      if (a.paused){ same = 0; play(a); return; }
+      if (a.currentTime === lastT){ same++; if (same >= 4){ same = 0; a.pause(); play(a); } } else same = 0;
+      lastT = a.currentTime;
+    }, 2000);
+  }
+
+  // ===== Diashow =====
+  var slides = (window.SLIDES || []).slice();
+  var layers = [document.getElementById("s0"), document.getElementById("s1")];
+  var cap = document.getElementById("cap"), capk = document.getElementById("capk"), capv = document.getElementById("capv");
+  var deck = [], cur = 0, last = null;
+  function shuffle(a){ for (var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i]; a[i]=a[j]; a[j]=t; } return a; }
+  function nextSlide(){
+    if (!deck.length){ deck = shuffle(slides.slice()); if (deck[0] === last && deck.length > 1) deck.push(deck.shift()); }
+    return (last = deck.shift());
+  }
+  function label(it){
+    var v = it.label.replace(" and ", " & ").toUpperCase();
+    var k = it.group === "Places" ? "ORT" : (it.label.indexOf(" and ") > -1 ? "CHARAKTERE" : "CHARAKTER");
+    return [k, v];
+  }
+  function load(src){
+    return new Promise(function(res){
+      var im = new Image(); im.onload = im.onerror = function(){ res(); }; im.src = src;
+    });
+  }
+  function kenBurns(el){
+    var ox = 20 + Math.random()*60, oy = 20 + Math.random()*60;
+    el.style.transformOrigin = ox + "% " + oy + "%";
+    var zin = Math.random() < 0.7;
+    var a = zin ? 1.0 : 1.13, b = zin ? 1.13 : 1.0;
+    if (el._anim) el._anim.cancel();
+    el._anim = el.animate([{transform:"scale("+a+")"},{transform:"scale("+b+")"}],
+                          {duration: SHOW + FADE*2, easing:"linear", fill:"forwards"});
+  }
+  var preloaded = null, preItem = null;
+  function preloadNext(){ preItem = nextSlide(); preloaded = load(preItem.src); }
+  function show(first){
+    var it = preItem, nxt = layers[1-cur], old = layers[cur];
+    preloaded.then(function(){
+      nxt.style.backgroundImage = "url('" + it.src + "')";
+      nxt.style.zIndex = 2; old.style.zIndex = 1;
+      kenBurns(nxt);
+      nxt.style.transition = first ? "none" : "opacity " + FADE + "ms ease-in-out";
+      void nxt.offsetWidth;
+      nxt.style.opacity = 1;
+      // Bildunterschrift
+      var L = label(it);
+      cap.style.opacity = 0;
+      setTimeout(function(){ capk.textContent = L[0]; capv.textContent = L[1]; cap.style.opacity = 1; }, first ? 0 : FADE/2);
+      setTimeout(function(){ old.style.transition = "none"; old.style.opacity = 0; }, FADE + 50);
+      cur = 1 - cur;
+      preloadNext();
+      setTimeout(function(){ show(false); }, SHOW + FADE);
+    });
+  }
+  if (slides.length){ preloadNext(); show(true); }
+
+  // ===== Genaue Uhrzeit aus dem Internet holen (Atomuhr-genau, Abweichung des PCs wird ausgeglichen) =====
+  function parseIso(t){ // "2026-11-17T16:42:01.123456+00:00" -> ms
+    var m = /^(\d{4})-(\d\d)-(\d\d)T(\d\d):(\d\d):(\d\d)(?:\.(\d+))?/.exec(t); if (!m) return NaN;
+    var ms = m[7] ? Math.round(parseFloat("0." + m[7]) * 1000) : 0;
+    return Date.UTC(+m[1], +m[2]-1, +m[3], +m[4], +m[5], +m[6], ms);
+  }
+  var SOURCES = [
+    {url:"https://worldtimeapi.org/api/timezone/Etc/UTC", get:function(j){ return parseIso(j.utc_datetime || j.datetime); }},
+    {url:"https://timeapi.io/api/Time/current/zone?timeZone=UTC", get:function(j){ return parseIso(j.dateTime); }},
+    {url:"https://worldtimeapi.org/api/ip", get:function(j){ return parseIso(j.utc_datetime); }}
+  ];
+  function sample(src){
+    return new Promise(function(res, rej){
+      var t0 = performance.now(), c0 = Date.now();
+      var ctl = (window.AbortController ? new AbortController() : null);
+      var to = setTimeout(function(){ if (ctl) ctl.abort(); rej(new Error("timeout")); }, 4000);
+      fetch(src.url + (src.url.indexOf("?") > -1 ? "&" : "?") + "_=" + c0, {cache:"no-store", signal: ctl ? ctl.signal : undefined})
+        .then(function(r){ return r.json(); })
+        .then(function(j){
+          clearTimeout(to);
+          var rtt = performance.now() - t0, server = src.get(j);
+          if (isNaN(server)) return rej(new Error("parse"));
+          // Serverzeit gilt etwa in der Mitte der Anfrage
+          res({rtt: rtt, offset: server - (c0 + rtt / 2)});
+        }).catch(function(e){ clearTimeout(to); rej(e); });
+    });
+  }
+  function syncClock(){
+    var i = 0;
+    (function next(){
+      if (i >= SOURCES.length){ syncInfo = "Uhr: PC-Zeit (keine Internet-Uhr erreichbar)"; return; }
+      var src = SOURCES[i++], best = null, n = 0;
+      (function again(){
+        sample(src).then(function(r){ if (!best || r.rtt < best.rtt) best = r; }, function(){})
+          .then(function(){
+            if (++n < 3) return setTimeout(again, 400);
+            if (best && best.rtt < 2500){
+              OFFSET = best.offset;
+              syncInfo = "Uhr: synchronisiert, PC ging " + (Math.abs(OFFSET) / 1000).toFixed(2) + " s " + (OFFSET > 0 ? "nach" : "vor") + " (±" + Math.round(best.rtt / 2) + " ms)";
+            } else next();
+          });
+      })();
+    })();
+  }
+  syncClock(); setInterval(syncClock, 10 * 60 * 1000);
+  setInterval(function(){ var d2 = document.getElementById("dbg2"); if (d2 && q.has("debug")){ d2.style.display = "block"; d2.textContent = syncInfo + " · Vorlauf " + (LEAD/1000) + " s"; } }, 1000);
+
+  // ===== Countdown =====
+  var $ = function(id){ return document.getElementById(id); };
+  var dEl=$("d"), hEl=$("h"), mEl=$("m"), sEl=$("s"), cd=$("cd"), big=$("big"), done=$("done"), flash=$("flash"), nowv=$("nowv");
+  var fmtNow = new Intl.DateTimeFormat("de-DE", {timeZone:"Europe/Berlin", day:"2-digit", month:"2-digit", year:"numeric", hour:"2-digit", minute:"2-digit", second:"2-digit"});
+  function pad(n){ return (n < 10 ? "0" : "") + n; }
+  var lastSec = null, finished = false;
+  function tick(){
+    var now = nowMs();
+    var rem = Math.max(0, Math.ceil((TARGET - now)/1000));
+    if (rem !== lastSec){
+      lastSec = rem;
+      dEl.textContent = pad(Math.floor(rem/86400));
+      hEl.textContent = pad(Math.floor(rem%86400/3600));
+      mEl.textContent = pad(Math.floor(rem%3600/60));
+      sEl.textContent = pad(rem%60);
+      nowv.textContent = fmtNow.format(new Date(now)).replace(",", " ·") + " UHR";
+      if (rem > 0 && rem <= 10){
+        cd.style.opacity = 0; $("date").style.opacity = 0;
+        big.textContent = rem; big.style.opacity = 1;
+        big.classList.remove("pop"); void big.offsetWidth; big.classList.add("pop");
+      } else if (rem === 0 && !finished){
+        finished = true;
+        big.style.opacity = 0; cd.style.opacity = 0;
+        $("date").style.opacity = 0;
+        done.classList.add("on");
+        flash.classList.remove("go"); void flash.offsetWidth; flash.classList.add("go");
+      } else if (rem > 10){
+        cd.style.opacity = 1; big.style.opacity = 0; $("date").style.opacity = 1;
+      }
+    }
+  }
+  setInterval(tick, 100); tick();
+})();
+</script>
+</body>
+</html>
