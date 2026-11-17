@@ -18,7 +18,7 @@ html,body{width:100%;height:100%;background:#000;overflow:hidden}
 
 /* Diashow */
 #bg{position:absolute;inset:0;z-index:0;isolation:isolate;overflow:hidden}
-.slide{position:absolute;inset:0;background-size:cover;background-position:center;opacity:0;will-change:transform,opacity}
+.vid{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;background:#000}
 .shade{position:absolute;inset:0;pointer-events:none;
   background:
     linear-gradient(180deg,rgba(0,0,0,.70) 0%,rgba(0,0,0,0) 26%),
@@ -93,8 +93,8 @@ html.fsmode #fs{display:none}
 <body>
 <div id="stage">
   <div id="bg">
-    <div class="slide" id="s0"></div>
-    <div class="slide" id="s1"></div>
+    <video class="vid" id="v0" muted playsinline preload="auto"></video>
+    <video class="vid" id="v1" muted playsinline preload="auto"></video>
   </div>
   <div class="shade"></div>
 
@@ -129,7 +129,6 @@ html.fsmode #fs{display:none}
 
 <audio id="mA" src="music-v2.mp3" preload="auto"></audio>
 <audio id="mB" src="music-v2.mp3" preload="auto"></audio>
-<script src="slides.js"></script>
 <script>
 (function(){
   // ===== Einstellungen =====
@@ -226,57 +225,26 @@ html.fsmode #fs{display:none}
     }, 2000);
   }
 
-  // ===== Diashow =====
-  var slides = (window.SLIDES || []).slice();
-  var layers = [document.getElementById("s0"), document.getElementById("s1")];
-  var cap = document.getElementById("cap"), capk = document.getElementById("capk"), capv = document.getElementById("capv");
-  var deck = [], cur = 0, last = null;
-  function shuffle(a){ for (var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i]; a[i]=a[j]; a[j]=t; } return a; }
-  function nextSlide(){
-    if (!deck.length){ deck = shuffle(slides.slice()); if (deck[0] === last && deck.length > 1) deck.push(deck.shift()); }
-    return (last = deck.shift());
+  // ===== Trailer-Hintergrund: Videos nacheinander (stumm, Musik läuft separat) =====
+  var VIDS = ["videos/1-trailer-1.mp4","videos/2-trailer-2.mp4","videos/3-launch-trailer.mp4","videos/4-pre-load-trailer.mp4"];
+  var V = [document.getElementById("v0"), document.getElementById("v1")], vc = 0, vi = 0;
+  V.forEach(function(v){ v.muted = true; v.defaultMuted = true; v.playsInline = true; });
+  function vnext(i){ return (i + 1) % VIDS.length; }
+  function vstart(el, i){ el.src = VIDS[i]; el.load(); }
+  function vplay(el){ var p = el.play(); if (p && p.catch) p.catch(function(){}); }
+  function vswap(){
+    var old = V[vc], nxt = V[1 - vc];
+    vi = vnext(vi);
+    nxt.currentTime = 0; vplay(nxt);
+    nxt.style.opacity = 1; old.style.opacity = 0;
+    vc = 1 - vc;
+    setTimeout(function(){ old.pause(); vstart(old, vnext(vi)); }, 500);
   }
-  function label(it){
-    var v = it.label.replace(" and ", " & ").toUpperCase();
-    var k = it.group === "Places" ? "ORT" : (it.label.indexOf(" and ") > -1 ? "CHARAKTERE" : "CHARAKTER");
-    return [k, v];
-  }
-  function load(src){
-    return new Promise(function(res){
-      var im = new Image(); im.onload = im.onerror = function(){ res(); }; im.src = src;
-    });
-  }
-  function kenBurns(el){
-    var ox = 20 + Math.random()*60, oy = 20 + Math.random()*60;
-    el.style.transformOrigin = ox + "% " + oy + "%";
-    var zin = Math.random() < 0.7;
-    var a = zin ? 1.0 : 1.13, b = zin ? 1.13 : 1.0;
-    if (el._anim) el._anim.cancel();
-    el._anim = el.animate([{transform:"scale("+a+")"},{transform:"scale("+b+")"}],
-                          {duration: SHOW + FADE*2, easing:"linear", fill:"forwards"});
-  }
-  var preloaded = null, preItem = null;
-  function preloadNext(){ preItem = nextSlide(); preloaded = load(preItem.src); }
-  function show(first){
-    var it = preItem, nxt = layers[1-cur], old = layers[cur];
-    preloaded.then(function(){
-      nxt.style.backgroundImage = "url('" + it.src + "')";
-      nxt.style.zIndex = 2; old.style.zIndex = 1;
-      kenBurns(nxt);
-      nxt.style.transition = first ? "none" : "opacity " + FADE + "ms ease-in-out";
-      void nxt.offsetWidth;
-      nxt.style.opacity = 1;
-      // Bildunterschrift
-      var L = label(it);
-      cap.style.opacity = 0;
-      setTimeout(function(){ capk.textContent = L[0]; capv.textContent = L[1]; cap.style.opacity = 1; }, first ? 0 : FADE/2);
-      setTimeout(function(){ old.style.transition = "none"; old.style.opacity = 0; }, FADE + 50);
-      cur = 1 - cur;
-      preloadNext();
-      setTimeout(function(){ show(false); }, SHOW + FADE);
-    });
-  }
-  if (slides.length){ preloadNext(); show(true); }
+  V.forEach(function(v, k){ v.addEventListener("ended", function(){ if (k === vc) vswap(); }); });
+  vstart(V[0], 0); vstart(V[1], 1);
+  V[0].style.opacity = 1; vplay(V[0]);
+  setInterval(function(){ var v = V[vc]; if (v.paused && !v.ended && v.readyState > 1) vplay(v); }, 3000);
+  document.getElementById("cap").style.display = "none";
 
   // ===== Genaue Uhrzeit aus dem Internet holen (Atomuhr-genau, Abweichung des PCs wird ausgeglichen) =====
   function parseIso(t){ // "2026-11-17T16:42:01.123456+00:00" -> ms
