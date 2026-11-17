@@ -186,7 +186,7 @@ html.fsmode #fs{display:none}
   if (dbg) dbg.style.display = "block";
   A.forEach(function(a){ a.volume = VOLUME; });
   // Songliste des Mix: ab dieser Sekunde (Mitte der Überblendung) gilt der Titel
-  var PLAN = [{"start": 0, "title": "GTA VI – Main Theme"}, {"start": 42.0, "title": "Aluna & Jayda G – Mine O Mine"}, {"start": 219.0, "title": "Justice – Flower In A Hurricane"}, {"start": 373.5, "title": "Depeche Mode – People Are People"}, {"start": 532.5, "title": "Tove Lo – Blood In Your Eyes"}, {"start": 688.7, "title": "GTA VI – Main Menu Music"}];
+  var PLAN = [{"start":0.0,"title":"GTA VI – Main Theme"},{"start":41.5,"title":"Aluna & Jayda G – Mine O Mine"},{"start":189.4,"title":"Justice – Flower In A Hurricane"},{"start":355.7,"title":"The Pointer Sisters – Hot Together"},{"start":536.3,"title":"GTA VI – Main Menu Music"},{"start":644.3,"title":"Depeche Mode – People Are People"},{"start":829.3,"title":"Tom Petty – Love Is A Long Road"},{"start":1010.7,"title":"Tove Lo – Blood In Your Eyes"}];
   var npEl = document.getElementById("np"), lastTitle = "";
   setInterval(function(){
     var t = A[mi].currentTime, title = PLAN[0].title;
