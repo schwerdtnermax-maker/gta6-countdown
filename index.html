@@ -21,7 +21,7 @@ html,body{width:100%;height:100%;background:#000;overflow:hidden}
 .slide{position:absolute;inset:0;background-size:cover;background-position:center;opacity:0;will-change:transform,opacity}
 .shade{position:absolute;inset:0;pointer-events:none;
   background:
-    linear-gradient(180deg,rgba(0,0,0,.70) 0%,rgba(0,0,0,0) 26%),
+    linear-gradient(180deg,rgba(0,0,0,.72) 0%,rgba(0,0,0,.4) 18%,rgba(0,0,0,0) 30%),
     linear-gradient(0deg,rgba(0,0,0,.80) 0%,rgba(0,0,0,0) 34%),
     radial-gradient(ellipse 70% 42% at 50% 52%,rgba(0,0,0,.42) 0%,rgba(0,0,0,0) 100%);}
 
@@ -43,15 +43,15 @@ html,body{width:100%;height:100%;background:#000;overflow:hidden}
   box-shadow:0 6px 0 rgba(0,0,0,.45)}
 #live i{width:18px;height:18px;border-radius:50%;background:#fff;animation:blink 1.2s infinite}
 @keyframes blink{50%{opacity:.15}}
-#title{position:absolute;left:0;right:0;top:112px;text-align:center;font-size:104px;line-height:1;letter-spacing:2px;white-space:nowrap}
+#title{position:absolute;left:0;right:0;top:50px;text-align:center;font-size:40px;line-height:1;letter-spacing:2px;white-space:nowrap}
 
 /* Countdown */
-#cd{position:absolute;left:0;right:0;top:318px;display:flex;justify-content:center;align-items:flex-start;gap:6px;transition:opacity .6s}
-.grp{width:350px;text-align:center}
-.num{font-size:232px;line-height:1;color:#fff;font-variant-numeric:tabular-nums}
-.lab{margin-top:18px;font-size:46px;line-height:1;letter-spacing:3px}
-.sep{font-size:190px;line-height:1.08;color:#fff;width:64px;text-align:center}
-#date{position:absolute;left:0;right:0;top:712px;text-align:center;font-size:58px;color:#fff;letter-spacing:1px;transition:opacity .6s}
+#cd{position:absolute;left:0;right:0;top:100px;display:flex;justify-content:center;align-items:flex-start;gap:6px;transition:opacity .6s}
+.grp{width:170px;text-align:center}
+.num{font-size:84px;line-height:1;color:#fff;font-variant-numeric:tabular-nums}
+.lab{margin-top:8px;font-size:19px;line-height:1;letter-spacing:3px}
+.sep{font-size:68px;line-height:1.08;color:#fff;width:28px;text-align:center}
+#date{position:absolute;left:0;right:0;top:234px;text-align:center;font-size:24px;color:#fff;letter-spacing:1px;transition:opacity .6s}
 
 /* Fußzeile */
 #cap{position:absolute;left:58px;bottom:52px;transition:opacity .7s}
@@ -59,9 +59,8 @@ html,body{width:100%;height:100%;background:#000;overflow:hidden}
 #cap .v{font-size:64px;line-height:1;color:#fff}
 #now{position:absolute;right:58px;bottom:56px;text-align:right;color:#fff}
 #now .k{font:800 24px/1 var(--ui);letter-spacing:3px;color:var(--orange);margin-bottom:10px}
-#now .v.nz{margin-bottom:22px}
 #now .v{font:800 40px/1 var(--ui);font-variant-numeric:tabular-nums}
-#np{position:absolute;right:58px;bottom:240px;font:700 24px/1 var(--ui);color:rgba(255,255,255,.85);letter-spacing:1px}
+#np{position:absolute;right:58px;bottom:142px;font:700 24px/1 var(--ui);color:rgba(255,255,255,.85);letter-spacing:1px}
 
 /* Letzte 10 Sekunden + Ende */
 #big{position:absolute;left:0;right:0;top:250px;text-align:center;font-size:580px;line-height:1;color:#fff;opacity:0;pointer-events:none}
@@ -118,7 +117,7 @@ html.fsmode #fs{display:none}
 
   <div id="cap" class="ol-s"><div class="k" id="capk">ORT</div><div class="v" id="capv">VICE CITY</div></div>
   <div id="np" class="ol-s">♪ GTA VI – Main Menu Music</div>
-  <div id="now" class="ol-s"><div class="k">JETZT IN NEUSEELAND</div><div class="v nz" id="nzv">--</div><div class="k">JETZT IN DEUTSCHLAND</div><div class="v" id="nowv">--</div></div>
+  <div id="now" class="ol-s"><div class="k">JETZT IN DEUTSCHLAND</div><div class="v" id="nowv">--</div></div>
 
   <div id="dbg"></div>
   <div id="dbg2"></div>
@@ -328,9 +327,8 @@ html.fsmode #fs{display:none}
 
   // ===== Countdown =====
   var $ = function(id){ return document.getElementById(id); };
-  var hEl=$("h"), mEl=$("m"), sEl=$("s"), cd=$("cd"), big=$("big"), done=$("done"), flash=$("flash"), nowv=$("nowv"), nzv=$("nzv");
+  var hEl=$("h"), mEl=$("m"), sEl=$("s"), cd=$("cd"), big=$("big"), done=$("done"), flash=$("flash"), nowv=$("nowv");
   var fmtNow = new Intl.DateTimeFormat("de-DE", {timeZone:"Europe/Berlin", day:"2-digit", month:"2-digit", year:"numeric", hour:"2-digit", minute:"2-digit", second:"2-digit"});
-  var fmtNz = new Intl.DateTimeFormat("de-DE", {timeZone:"Pacific/Auckland", day:"2-digit", month:"2-digit", year:"numeric", hour:"2-digit", minute:"2-digit", second:"2-digit"});
   function pad(n){ return (n < 10 ? "0" : "") + n; }
   var lastSec = null, finished = false;
   function tick(){
@@ -342,7 +340,6 @@ html.fsmode #fs{display:none}
       mEl.textContent = pad(Math.floor(rem%3600/60));
       sEl.textContent = pad(rem%60);
       nowv.textContent = fmtNow.format(new Date(now)).replace(",", " ·") + " UHR";
-      nzv.textContent = fmtNz.format(new Date(now)).replace(",", " ·") + " UHR";
       if (rem > 0 && rem <= 10){
         cd.style.opacity = 0; $("date").style.opacity = 0;
         big.textContent = rem; big.style.opacity = 1;
