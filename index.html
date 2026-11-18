@@ -61,8 +61,6 @@ html,body{width:100%;height:100%;background:#000;overflow:hidden}
 #now .k{font:800 24px/1 var(--ui);letter-spacing:3px;color:var(--orange);margin-bottom:10px}
 #now .v.nz{margin-bottom:22px}
 #now .v{font:800 40px/1 var(--ui);font-variant-numeric:tabular-nums}
-#prog{position:absolute;left:0;right:0;bottom:0;height:14px;background:rgba(0,0,0,.45);z-index:5}
-#prog i{display:block;height:100%;width:0;background:linear-gradient(90deg,#ff9a3c,#ff3fa4);box-shadow:0 0 14px rgba(255,63,164,.8);transition:width 1s linear}
 #np{position:absolute;right:58px;bottom:240px;font:700 24px/1 var(--ui);color:rgba(255,255,255,.85);letter-spacing:1px}
 
 /* Letzte 10 Sekunden + Ende */
@@ -121,8 +119,6 @@ html.fsmode #fs{display:none}
   <div id="cap" class="ol-s"><div class="k" id="capk">ORT</div><div class="v" id="capv">VICE CITY</div></div>
   <div id="np" class="ol-s">♪ GTA VI – Main Menu Music</div>
   <div id="now" class="ol-s"><div class="k">JETZT IN NEUSEELAND</div><div class="v nz" id="nzv">--</div><div class="k">JETZT IN DEUTSCHLAND</div><div class="v" id="nowv">--</div></div>
-
-  <div id="prog"><i id="progf"></i></div>
 
   <div id="dbg"></div>
   <div id="dbg2"></div>
@@ -332,7 +328,7 @@ html.fsmode #fs{display:none}
 
   // ===== Countdown =====
   var $ = function(id){ return document.getElementById(id); };
-  var hEl=$("h"), mEl=$("m"), sEl=$("s"), cd=$("cd"), big=$("big"), done=$("done"), flash=$("flash"), nowv=$("nowv"), nzv=$("nzv"), progf=$("progf"), START = Date.UTC(2026,10,16,23,0,0);
+  var hEl=$("h"), mEl=$("m"), sEl=$("s"), cd=$("cd"), big=$("big"), done=$("done"), flash=$("flash"), nowv=$("nowv"), nzv=$("nzv");
   var fmtNow = new Intl.DateTimeFormat("de-DE", {timeZone:"Europe/Berlin", day:"2-digit", month:"2-digit", year:"numeric", hour:"2-digit", minute:"2-digit", second:"2-digit"});
   var fmtNz = new Intl.DateTimeFormat("de-DE", {timeZone:"Pacific/Auckland", day:"2-digit", month:"2-digit", year:"numeric", hour:"2-digit", minute:"2-digit", second:"2-digit"});
   function pad(n){ return (n < 10 ? "0" : "") + n; }
@@ -346,7 +342,6 @@ html.fsmode #fs{display:none}
       mEl.textContent = pad(Math.floor(rem%3600/60));
       sEl.textContent = pad(rem%60);
       nowv.textContent = fmtNow.format(new Date(now)).replace(",", " ·") + " UHR";
-      progf.style.width = Math.max(0, Math.min(100, (now - START) / (TARGET - START) * 100)).toFixed(3) + "%";
       nzv.textContent = fmtNz.format(new Date(now)).replace(",", " ·") + " UHR";
       if (rem > 0 && rem <= 10){
         cd.style.opacity = 0; $("date").style.opacity = 0;
